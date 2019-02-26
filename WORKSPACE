@@ -9,11 +9,25 @@ new_local_repository(
 )
 
 http_archive(
-    name = "six_archive",
-    build_file = "@//:six.BUILD",
-    sha256 = "105f8d68616f8248e24bf0e9372ef04d3cc10104f1980f54d57b2ce73a5ad56a",
-    urls = ["https://pypi.python.org/packages/source/s/six/six-1.10.0.tar.gz#md5=34eed507548117b2ab523ab14b2f8b55"],
+    name = "six",
+    url = "https://pypi.python.org/packages/source/s/six/six-1.9.0.tar.gz",
+    sha256 = "e24052411fc4fbd1f672635537c3fc2330d9481b18c0317695b46259512c91d5",
+    strip_prefix = "six-1.9.0/",
+    type = "tar.gz",
+    build_file_content = """
+# Rename six.py to __init__.py
+genrule(
+    name = "rename",
+    srcs = ["six.py"],
+    outs = ["__init__.py"],
+    cmd = "cat $< >$@",
 )
+py_library(
+   name = "six",
+   srcs = [":__init__.py"],
+   visibility = ["//visibility:public"],
+)""",
+    )
 
 http_archive(
     name = "bazel_skylib",
@@ -43,11 +57,6 @@ bind(
 bind(
     name = "gtest_main",
     actual = "@submodule_gmock//:gtest_main",
-)
-
-bind(
-    name = "six",
-    actual = "@six_archive//:six",
 )
 
 maven_jar(
